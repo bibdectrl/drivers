@@ -131,18 +131,18 @@ var gameState = {
 
  createBus: function(){
   var bus = this.buses.getFirstDead();
-  bus.reset(100, 512);
-  bus.body.velocity.y = this.game.rnd.between(-200, -220);
+  bus.reset(400, 512);
+  bus.body.velocity.y = -200;
   bus.checkWorldBounds = true;
   bus.outOfBoundsKill = true;
  },
 
  createBusDown: function(){
-  var busDown = this.busesDown.getFirstDead();
-  busDown.reset(400, -255);
-  busDown.body.velocity.y = 400;
-  busDown.checkWorldBounds = true;
-  busDown.outOfBoundsKill = true;
+  var bus = this.busesDown.getFirstDead();
+  bus.reset(100, -255);
+  bus.body.velocity.y = 400;
+  bus.checkWorldBounds = true;
+  bus.outOfBoundsKill = true;
 
  }
 
