@@ -13,6 +13,8 @@ var preloadState = {
    game.load.image("busdown", "assets/busdown.png");
    game.load.image("sportscar", "assets/sportscar.png");
    game.load.image("sportscardown", "assets/sportscardown.png");
+   game.load.image("suv", "assets/suv.png");
+   game.load.image("suvdown", "assets/suvdown.png");
   },
 
   create: function(){
@@ -63,6 +65,12 @@ var gameState = {
   this.sportsCarsDown = game.add.group();
   this.sportsCarsDown.enableBody = true;
   this.sportsCarsDown.createMultiple(5, "sportscardown");
+  this.suvs = game.add.group();
+  this.suvs.enableBody = true;
+  this.suvs.createMultiple(15, "suv");
+  this.suvsDown = game.add.group();
+  this.suvsDown.enableBody = true;
+  this.suvsDown.createMultiple(15, "suvdown");
   game.physics.arcade.enable(this.cyclist);
   this.cyclist.body.collideWorldBounds = true;
   this.cyclist.animations.add("ride");
@@ -79,6 +87,13 @@ var gameState = {
   game.physics.arcade.overlap(this.cyclist, this.busesDown, this.instaDeath, null, this);
   game.physics.arcade.overlap(this.cyclist, this.sportsCars, this.instaDeath, null, this);
   game.physics.arcade.overlap(this.peds, this.sportsCars, this.killPed, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.sportsCarsDown, this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.peds, this.sportsCarsDown, this.killPed, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.suvs, this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.peds, this.suvs, this.killPed, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.suvsDown, this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.peds, this.suvsDown, this.killPed, null, this);
+
 
   this.road.tilePosition.y += this.speed;  
   var touched = false; 
@@ -109,33 +124,58 @@ var gameState = {
 
  killPed: function(ped, vehicle){
    if (! ped.crushed ) {
-     if (ped.y > vehicle.y){
-       ped.body.velocity.x *= -1;
+     if (vehicle.body.velocity.y > 0){      
+       if (ped.y > vehicle.y){
+         ped.body.velocity.x *= -1;
+         if (ped.body.velocity.x >= 0){
+           ped.animations.play("walking-right", 5, true);
+         } else {
+           ped.animations.play("walking-left", 5, true);
+         }
+       }
+       else {
+         ped.crushed = true;  
+         if (ped.body.velocity.x >= 0)
+           ped.animations.play("dead-right", 1, true);
+         else {
+           ped.animations.play("dead-left", 1, true);
+         }
+         ped.body.velocity.x = 0;
+       }
+   }
+   else {
+     if (ped.y < vehicle.y){
+       ped.body.velocity *= -1;
        if (ped.body.velocity.x >= 0){
          ped.animations.play("walking-right", 5, true);
        } else {
          ped.animations.play("walking-left", 5, true);
-       }
+       } 
      }
-     else {
-       if (ped.body.velocity.x >= 0)
-         ped.animations.play("dead-right", 1, true);
-       else {
-         ped.animations.play("dead-left", 1, true);
+      else {
+        ped.crushed = true;  
+        if (ped.body.velocity.x >= 0) {
+           ped.animations.play("dead-right", 1, true);
+        } else {
+           ped.animations.play("dead-left", 1, true);
+        }
+        ped.body.velocity.x = 0;
        }
-       ped.body.velocity.x = 0;
-     }
+    }
    }
- },
+  }, 
+
 
  addObstacle: function(){
-   var option = game.rnd.between(0, 4);
+   var option = game.rnd.between(0, 6);
    switch(option){
      case 0: this.createPed(); break; 
      case 1: this.createBus(); break;
      case 2: this.createBusDown(); break;
      case 3: this.createSportsCar(); break;
      case 4: this.createSportsCarDown(); break;
+     case 5: this.createSUV(); break;
+     case 6: this.createSUVDown(); break;
    }
  },
 
@@ -155,6 +195,23 @@ var gameState = {
    car.checkWorldBounds = true;
    car.outOfBoundsKill = true;
    car.body.velocity.y = -200;
+ },
+ 
+ createSUV: function(){
+   var car = this.suvs.getFirstDead();
+   car.reset(400, 512);
+   car.checkWorldBounds = true;
+   car.outOfBoundsKill = true;
+   car.body.velocity.y = -200;
+ },
+
+ createSUVDown: function(){
+   var car = this.suvsDown.getFirstDead();
+   car.reset(100, -205);
+   car.checkWorldBounds = true;
+   car.outOfBoundsKill = true;
+   car.body.velocity.y = 400; 
+
  },
  
  createSportsCarDown: function(){
