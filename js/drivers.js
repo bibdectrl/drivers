@@ -4,14 +4,11 @@ var gameState = {
 
  preload: function(){
   game.load.spritesheet("cyclist", "assets/bikewithrider.png", 34, 128, 4);
-  game.load.spritesheet("ped", "assets/ped.png", 32, 27, 5)
-  game.load.spritesheet("ped2", "assets/ped2.png", 32, 27, 5);
-  game.load.spritesheet("ped3", "assets/ped3.png", 32, 27, 5);
+  game.load.spritesheet("ped", "assets/allpeds.png", 32, 27, 15)
   game.load.image("dead", "assets/dead.png");
   game.load.image("road", "assets/road.png");
   game.load.image("bus", "assets/testbus.png");
   game.load.image("busdown", "assets/busdown.png");
-  game.load.image("deadped", "assets/deadped.png");
  },
 
  create: function(){
@@ -19,86 +16,75 @@ var gameState = {
   this.road = game.add.tileSprite(0, 0, 640, 512, "road");
   this.cyclist = game.add.sprite(300, 300, "cyclist");
   this.cyclist.alive = true;
+  this.peds = game.add.group();
+  this.peds.enableBody = true;
+  this.peds.createMultiple(15, "ped");
+  this.speed = 4
   this.buses = game.add.group();
   this.busesDown = game.add.group();
   this.buses.enableBody = true;
   this.buses.createMultiple(5, "bus");
   this.busesDown.enableBody = true;
   this.busesDown.createMultiple(5, "busdown");
-  this.peds = game.add.group();
-  this.peds.enableBody = true;
-  this.peds.createMultiple(5, "ped");
-  this.peds2 = game.add.group();
-  this.peds2.enableBody = true;
-  this.peds2.createMultiple(5, "ped2");
-  this.peds3 = game.add.group();
-  this.peds3.enableBody = true;
-  this.peds3.createMultiple(5, "ped3");
-  this.speed = 4
   game.physics.arcade.enable(this.cyclist);
+  game.physics.arcade.enable(this.buses);
+  game.physics.arcade.enable(this.busesDown);
   this.cyclist.body.collideWorldBounds = true;
   this.cyclist.animations.add("ride");
   this.cyclist.animations.play("ride", 15, true);
-  this.timer = game.time.events.loop(2000, this.addObstacle, this);
- },
+  this.timer = game.time.events.loop(1500, this.addObstacle, this);
  
+ },
+
  update: function(){
+  game.physics.arcade.overlap(this.peds, this.busesDown, this.killPed, null, this); 
+  game.physics.arcade.overlap(this.peds, this.buses, this.killPed, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.peds,  this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.buses, this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.busesDown, this.instaDeath, null, this);
+
   this.road.tilePosition.y += this.speed;  
   var touched = false; 
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.UP)){
-     this.cyclist.y -= 3; 
+     this.cyclist.body.velocity.y = -400;
      touched = true;
   } 
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
-     this.cyclist.y += 3;
+     this.cyclist.body.velocity.y = 400;
      touched = true;
   } 
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-     this.cyclist.x -= 3;
+     this.cyclist.body.velocity.x = -300;
      touched = true;
   } 
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-     this.cyclist.x += 3;
+     this.cyclist.body.velocity.x = 300;
      touched = true;
   } if (! touched) {
-     if (this.cyclist.y > 300){
-       this.cyclist.y -= Math.min( Math.abs(this.cyclist.y - 300), 3);
-     } else if (this.cyclist.y < 300){
-       this.cyclist.y += Math.min( Math.abs(this.cyclist.y - 300), 3);
-     }
+    this.cyclist.body.velocity.y = 200;
+    this.cyclist.body.velocity.x = 0;
   }
-  this.peds.forEachAlive(function(ped){
+   this.peds.forEachAlive(function(ped){
      ped.y += this.speed;
-  }, this);
-  this.peds2.forEachAlive(function(ped){
-     ped.y += this.speed;
-  }, this);
-  
-  this.peds3.forEachAlive(function(ped){
-     ped.y += this.speed;
-  }, this);
-  
-  game.physics.arcade.overlap(this.peds, this.buses, this.killPed, null, this);
-  game.physics.arcade.overlap(this.peds2, this.buses, this.killPed, null, this);
-  game.physics.arcade.overlap(this.peds3, this.buses, this.killPed, null, this);
+  }, this); 
+ 
  },
 
  killPed: function(ped, bus){
-   ped.animations.play("dead");
+   ped.animations.play("dead", 1, true);
    ped.body.velocity.x = 0;
  },
 
  addObstacle: function(){
-   var option = game.rnd.between(0, 3);
+   var option = game.rnd.between(0, 2);
    switch(option){
      case 0: this.createPed(); break; 
      case 1: this.createBus(); break;
      case 2: this.createBusDown(); break;
-     default: console.log(option + " was chosen");
    }
  },
 
- instadeath: function(){
+ instaDeath: function(cyc, ped){
    this.cyclist.loadTexture("dead");  
    this.speed = 0;
    this.cyclist.alive = false;
@@ -107,27 +93,28 @@ var gameState = {
 
  createPed: function(){
   var pedNum = game.rnd.between(0, 2);
-  var ped;
+  var ped = this.peds.getFirstDead();
   switch (pedNum) {
       case 0:   
-          ped = this.peds.getFirstDead();
+          ped.animations.add("walking", [0, 1, 2, 3]);
+          ped.animations.add("dead", [4]);
           break;
       case 1:
-          ped = this.peds2.getFirstDead();
+          ped.animations.add("walking", [5, 6, 7, 8]);
+          ped.animations.add("dead", [9]);
           break;
       case 2:
-          ped = this.peds3.getFirstDead();
+          ped.animations.add("walking", [10, 11, 12, 13]);
+          ped.animations.add("dead", [14]);
           break;
   }
   var y = game.rnd.between(0, 400);
   ped.reset(0, y);
-  ped.animations.add("walk", [0, 1, 2, 3]);
-  ped.animations.add("dead", [4]);
-  ped.animations.play("walk", 10, true);
   ped.checkWorldBounds = true;
   ped.outOfBoundsKill = true;
-  ped.body.velocity.x = 300;
- },
+  ped.body.velocity.x = 400;
+  ped.animations.play("walking", 5, true); 
+},
 
  createBus: function(){
   var bus = this.buses.getFirstDead();
