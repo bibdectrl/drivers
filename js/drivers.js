@@ -11,6 +11,7 @@ var preloadState = {
    game.load.image("road", "assets/road.png");
    game.load.image("bus", "assets/testbus.png");
    game.load.image("busdown", "assets/busdown.png");
+   game.load.image("sportscar", "assets/sportscar.png");
   },
 
   create: function(){
@@ -55,13 +56,16 @@ var gameState = {
   this.buses.createMultiple(5, "bus");
   this.busesDown.enableBody = true;
   this.busesDown.createMultiple(5, "busdown");
+  this.sportsCars = game.add.group();
+  this.sportsCars.enableBody = true;
+  this.sportsCars.createMultiple(5, "sportscar");
   game.physics.arcade.enable(this.cyclist);
   game.physics.arcade.enable(this.buses);
   game.physics.arcade.enable(this.busesDown);
   this.cyclist.body.collideWorldBounds = true;
   this.cyclist.animations.add("ride");
   this.cyclist.animations.play("ride", 15, true);
-  this.timer = game.time.events.loop(1000, this.addObstacle, this);
+  this.timer = game.time.events.loop(1500, this.addObstacle, this);
  
  },
 
@@ -71,6 +75,8 @@ var gameState = {
   game.physics.arcade.overlap(this.cyclist, this.peds,  this.instaDeath, null, this);
   game.physics.arcade.overlap(this.cyclist, this.buses, this.instaDeath, null, this);
   game.physics.arcade.overlap(this.cyclist, this.busesDown, this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.sportsCars, this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.peds, this.sportsCars, this.killPed, null, this);
 
   this.road.tilePosition.y += this.speed;  
   var touched = false; 
@@ -99,27 +105,34 @@ var gameState = {
  
  },
 
- killPed: function(ped, bus){
-   if (ped.y > bus.y){
-     ped.body.velocity.x *= -1;
-     if (ped.body.velocity.x >= 0){
-       ped.animations.play("walking-right");
-     } else {
-       ped.animations.play("walking-left");
+ killPed: function(ped, vehicle){
+   if (! ped.crushed ) {
+     if (ped.y > vehicle.y){
+       ped.body.velocity.x *= -1;
+       if (ped.body.velocity.x >= 0){
+         ped.animations.play("walking-right", 5, true);
+       } else {
+         ped.animations.play("walking-left", 5, true);
+       }
      }
-   }
-   else {
-     ped.animations.play("dead", 1, true);
-     ped.body.velocity.x = 0;
+     else {
+       if (ped.body.velocity.x >= 0)
+         ped.animations.play("dead-right", 1, true);
+       else {
+         ped.animations.play("dead-left", 1, true);
+       }
+       ped.body.velocity.x = 0;
+     }
    }
  },
 
  addObstacle: function(){
-   var option = game.rnd.between(0, 2);
+   var option = game.rnd.between(0, 3);
    switch(option){
      case 0: this.createPed(); break; 
      case 1: this.createBus(); break;
      case 2: this.createBusDown(); break;
+     case 3: this.createSportsCar(); break;
    }
  },
 
@@ -132,33 +145,56 @@ var gameState = {
    game.time.events.loop(4000, function(){ game.state.start("title"); }, this);
  },
 
+ 
+ createSportsCar: function(){
+   var car = this.sportsCars.getFirstDead();
+   car.reset(400, 512);
+   car.checkWorldBounds = true;
+   car.outOfBoundsKill = true;
+   car.body.velocity.y = -200;
+ },
+
 
  createPed: function(){
   var pedNum = game.rnd.between(0, 2);
   var ped = this.peds.getFirstDead();
+  ped.crushed = false;
   switch (pedNum) {
       case 0:   
           ped.animations.add("walking-right", [0, 1, 2, 3]);
           ped.animations.add("walking-left", [29, 28, 27, 26]);
-          ped.animations.add("dead", [4]);
+          ped.animations.add("dead-right", [4]);
+          ped.animations.add("dead-left", [25]);
           break;
       case 1:
           ped.animations.add("walking-right", [5, 6, 7, 8]);
           ped.animations.add("walking-left", [24, 23, 22, 21]);
-          ped.animations.add("dead", [9]);
+          ped.animations.add("dead-right", [9]);
+          ped.animations.add("dead-left", [20]);
           break;
       case 2:
           ped.animations.add("walking-right", [10, 11, 12, 13]);
           ped.animations.add("walking-left", [19, 18, 17, 16])
-          ped.animations.add("dead", [14]);
+          ped.animations.add("dead-right", [14]);
+          ped.animations.add("dead-left", [15]);
           break;
   }
-  var y = game.rnd.between(0, 400);
-  ped.reset(0, y);
-  ped.checkWorldBounds = true;
-  ped.outOfBoundsKill = true;
-  ped.body.velocity.x = 400;
-  ped.animations.play("walking-right", 5, true); 
+  var leftOrRight = Math.random();
+  if (leftOrRight <= 0.5) {
+    var y = game.rnd.between(0, 400);
+    ped.reset(0, y);
+    ped.checkWorldBounds = true;
+    ped.outOfBoundsKill = true;
+    ped.body.velocity.x = 400;
+    ped.animations.play("walking-right", 5, true); 
+  } else {
+    var y = game.rnd.between(0, 400);
+    ped.reset(639, y);
+    ped.checkWorldBounds = true;
+    ped.outOfBoundsKill = true;
+    ped.body.velocity.x = -400;
+    ped.animations.play*("walking-left", 5, true);
+  }
 },
 
  createBus: function(){
