@@ -6,7 +6,7 @@ var preloadState = {
   preload: function(){
    game.load.image("title", "assets/title.png");
    game.load.spritesheet("cyclist", "assets/bikewithrider.png", 34, 128, 4);
-   game.load.spritesheet("ped", "assets/allpeds.png", 32, 27, 15)
+   game.load.spritesheet("ped", "assets/allpedsbackandforth.png", 32, 27, 30)
    game.load.image("dead", "assets/dead.png");
    game.load.image("road", "assets/road.png");
    game.load.image("bus", "assets/testbus.png");
@@ -61,7 +61,7 @@ var gameState = {
   this.cyclist.body.collideWorldBounds = true;
   this.cyclist.animations.add("ride");
   this.cyclist.animations.play("ride", 15, true);
-  this.timer = game.time.events.loop(1500, this.addObstacle, this);
+  this.timer = game.time.events.loop(1000, this.addObstacle, this);
  
  },
 
@@ -101,7 +101,12 @@ var gameState = {
 
  killPed: function(ped, bus){
    if (ped.y > bus.y){
-     ped.body.velocity.x *= -1;  
+     ped.body.velocity.x *= -1;
+     if (ped.body.velocity.x >= 0){
+       ped.animations.play("walking-right");
+     } else {
+       ped.animations.play("walking-left");
+     }
    }
    else {
      ped.animations.play("dead", 1, true);
@@ -133,15 +138,18 @@ var gameState = {
   var ped = this.peds.getFirstDead();
   switch (pedNum) {
       case 0:   
-          ped.animations.add("walking", [0, 1, 2, 3]);
+          ped.animations.add("walking-right", [0, 1, 2, 3]);
+          ped.animations.add("walking-left", [29, 28, 27, 26]);
           ped.animations.add("dead", [4]);
           break;
       case 1:
-          ped.animations.add("walking", [5, 6, 7, 8]);
+          ped.animations.add("walking-right", [5, 6, 7, 8]);
+          ped.animations.add("walking-left", [24, 23, 22, 21]);
           ped.animations.add("dead", [9]);
           break;
       case 2:
-          ped.animations.add("walking", [10, 11, 12, 13]);
+          ped.animations.add("walking-right", [10, 11, 12, 13]);
+          ped.animations.add("walking-left", [19, 18, 17, 16])
           ped.animations.add("dead", [14]);
           break;
   }
@@ -150,7 +158,7 @@ var gameState = {
   ped.checkWorldBounds = true;
   ped.outOfBoundsKill = true;
   ped.body.velocity.x = 400;
-  ped.animations.play("walking", 5, true); 
+  ped.animations.play("walking-right", 5, true); 
 },
 
  createBus: function(){
