@@ -1,7 +1,7 @@
 var game = new Phaser.Game(640, 512);
 
 
-var titleState = {
+var preloadState = {
 
   preload: function(){
    game.load.image("title", "assets/title.png");
@@ -12,6 +12,15 @@ var titleState = {
    game.load.image("bus", "assets/testbus.png");
    game.load.image("busdown", "assets/busdown.png");
   },
+
+  create: function(){
+   game.state.start("title");
+
+  }
+
+};
+
+var titleState = {
 
   create: function(){
    game.add.sprite(0, 0, "road");
@@ -86,13 +95,18 @@ var gameState = {
   }
    this.peds.forEachAlive(function(ped){
      ped.y += this.speed;
-  }, this); 
+   }, this); 
  
  },
 
  killPed: function(ped, bus){
-   ped.animations.play("dead", 1, true);
-   ped.body.velocity.x = 0;
+   if (ped.y > bus.y){
+     ped.body.velocity.x *= -1;  
+   }
+   else {
+     ped.animations.play("dead", 1, true);
+     ped.body.velocity.x = 0;
+   }
  },
 
  addObstacle: function(){

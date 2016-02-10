@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Drivers</title>
+<title>I Hate Mondays</title>
 </head>
 <body>
 <script src="js/phaser.js"></script>
@@ -10,9 +10,10 @@
 <script type="text/javascript">
 
 window.onload = function(){
+game.state.add("preload", preloadState);    
 game.state.add("title", titleState);    
 game.state.add("game", gameState);
-game.state.start("title");
+game.state.start("preload");
 
 }
 
