@@ -145,7 +145,7 @@ var gameState = {
    }
    else {
      if (ped.y < vehicle.y){
-       ped.body.velocity *= -1;
+       ped.body.velocity.x *= -1;
        if (ped.body.velocity.x >= 0){
          ped.animations.play("walking-right", 5, true);
        } else {
