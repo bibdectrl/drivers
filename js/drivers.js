@@ -1,15 +1,35 @@
 var game = new Phaser.Game(640, 512);
 
-var gameState = {
 
- preload: function(){
-  game.load.spritesheet("cyclist", "assets/bikewithrider.png", 34, 128, 4);
-  game.load.spritesheet("ped", "assets/allpeds.png", 32, 27, 15)
-  game.load.image("dead", "assets/dead.png");
-  game.load.image("road", "assets/road.png");
-  game.load.image("bus", "assets/testbus.png");
-  game.load.image("busdown", "assets/busdown.png");
- },
+var titleState = {
+
+  preload: function(){
+   game.load.image("title", "assets/title.png");
+   game.load.spritesheet("cyclist", "assets/bikewithrider.png", 34, 128, 4);
+   game.load.spritesheet("ped", "assets/allpeds.png", 32, 27, 15)
+   game.load.image("dead", "assets/dead.png");
+   game.load.image("road", "assets/road.png");
+   game.load.image("bus", "assets/testbus.png");
+   game.load.image("busdown", "assets/busdown.png");
+  },
+
+  create: function(){
+   game.add.sprite(0, 0, "road");
+   game.add.sprite(150, 100, "title");
+   game.add.text(170, 350, "PRESS SPACE TO START");
+  },
+
+  update: function(){
+   if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
+     game.state.start("game");
+   }
+  }
+
+
+}
+
+
+var gameState = {
 
  create: function(){
   game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -90,6 +110,7 @@ var gameState = {
    this.cyclist.body.velocity.y = 0;
    this.cyclist.body.velocity.x = 0;
    this.cyclist.alive = false;
+   game.time.events.loop(4000, function(){ game.state.start("title"); }, this);
  },
 
 

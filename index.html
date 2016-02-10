@@ -10,8 +10,9 @@
 <script type="text/javascript">
 
 window.onload = function(){
+game.state.add("title", titleState);    
 game.state.add("game", gameState);
-game.state.start("game");
+game.state.start("title");
 
 }
 
