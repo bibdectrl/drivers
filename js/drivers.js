@@ -60,7 +60,7 @@ var gameState = {
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
      this.cyclist.body.velocity.x = 300;
      touched = true;
-  } if (! touched) {
+  } if (! touched && this.cyclist.alive) {
     this.cyclist.body.velocity.y = 200;
     this.cyclist.body.velocity.x = 0;
   }
@@ -87,6 +87,8 @@ var gameState = {
  instaDeath: function(cyc, ped){
    this.cyclist.loadTexture("dead");  
    this.speed = 0;
+   this.cyclist.body.velocity.y = 0;
+   this.cyclist.body.velocity.x = 0;
    this.cyclist.alive = false;
  },
 
