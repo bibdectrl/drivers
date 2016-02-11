@@ -15,6 +15,8 @@ var preloadState = {
    game.load.image("sportscardown", "assets/sportscardown.png");
    game.load.image("suv", "assets/suv.png");
    game.load.image("suvdown", "assets/suvdown.png");
+   game.load.image("package", "assets/package.png");
+   game.load.image("arm", "assets/arm.png");
   },
 
   create: function(){
@@ -37,9 +39,7 @@ var titleState = {
      game.state.start("game");
    }
   }
-
-
-}
+};
 
 
 var gameState = {
@@ -49,6 +49,8 @@ var gameState = {
   this.road = game.add.tileSprite(0, 0, 640, 512, "road");
   this.cyclist = game.add.sprite(300, 300, "cyclist");
   this.cyclist.alive = true;
+  this.cyclist.holdingPackage = false;
+  this.cyclist.score = 0;
   this.peds = game.add.group();
   this.peds.enableBody = true;
   this.peds.createMultiple(15, "ped");
@@ -75,6 +77,13 @@ var gameState = {
   this.cyclist.body.collideWorldBounds = true;
   this.cyclist.animations.add("ride");
   this.cyclist.animations.play("ride", 15, true);
+  this.packages = game.add.group();
+  this.packages.enableBody = true;
+  this.packages.createMultiple(3, "package");
+  this.arms = game.add.group();
+  this.arms.enableBody = true;
+  this.arms.createMultiple(3, "arm");
+  this.scoreText = game.add.text(410, 0, "SCORE: " + this.cyclist.score);
   this.timer = game.time.events.loop(1500, this.addObstacle, this);
  
  },
@@ -93,6 +102,8 @@ var gameState = {
   game.physics.arcade.overlap(this.peds, this.suvs, this.killPed, null, this);
   game.physics.arcade.overlap(this.cyclist, this.suvsDown, this.instaDeath, null, this);
   game.physics.arcade.overlap(this.peds, this.suvsDown, this.killPed, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.packages, this.takePackage, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.arms, this.givePackage, null, this);
 
 
   this.road.tilePosition.y += this.speed;  
@@ -112,14 +123,42 @@ var gameState = {
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
      this.cyclist.body.velocity.x = 300;
      touched = true;
-  } if (! touched && this.cyclist.alive) {
+  } 
+  if (! touched && this.cyclist.alive) {
     this.cyclist.body.velocity.y = 200;
     this.cyclist.body.velocity.x = 0;
   }
-   this.peds.forEachAlive(function(ped){
-     ped.y += this.speed;
-   }, this); 
+  this.peds.forEachAlive(function(ped){
+    ped.y += this.speed;
+  }, this); 
+
+  this.packages.forEachAlive(function(p){
+     p.y += this.speed;
+  }, this);
+
+  this.arms.forEachAlive(function(a){
+     a.y += this.speed;
+  }, this);
  
+ },
+
+ takePackage: function(cyclist, pack){
+   pack.kill();  
+   cyclist.holdingPackage = true; 
+ },
+
+ givePackage: function(cyclist, arm){
+   if (cyclist.holdingPackage){
+     cyclist.holdingPackage = false;
+     cyclist.score += 100;
+     arm.kill();
+     this.scoreText.setText("SCORE: " + cyclist.score);
+   } else {
+     cyclist.score -= 100;  
+     arm.kill();
+     this.scoreText.setText("SCORE: " + cyclist.score);
+   }
+
  },
 
  killPed: function(ped, vehicle){
@@ -167,7 +206,7 @@ var gameState = {
 
 
  addObstacle: function(){
-   var option = game.rnd.between(0, 6);
+   var option = game.rnd.between(0, 7);
    switch(option){
      case 0: this.createPed(); break; 
      case 1: this.createBus(); break;
@@ -176,7 +215,32 @@ var gameState = {
      case 4: this.createSportsCarDown(); break;
      case 5: this.createSUV(); break;
      case 6: this.createSUVDown(); break;
+     case 7: this.handlePackage(); break;
    }
+ },
+
+ handlePackage: function(){
+   if (! this.cyclist.holdingPackage){
+      if (! this.packages.countLiving()) {
+          this.holdOutPackage();
+      }
+   } else {
+      this.addPackageReceiver();
+   }
+ },
+
+ addPackageReceiver: function(){
+  var arm = this.arms.getFirstDead();
+  arm.reset(600, 0);
+  arm.checkWorldBounds = true;
+  arm.outOfBoundsKill = true;
+ },
+
+ holdOutPackage: function(){
+   var pack = this.packages.getFirstDead();
+   pack.reset(590, 0);
+   pack.checkWorldBounds = true;
+   pack.outOfBoundsKill = true;
  },
 
  instaDeath: function(cyc, ped){
@@ -211,7 +275,6 @@ var gameState = {
    car.checkWorldBounds = true;
    car.outOfBoundsKill = true;
    car.body.velocity.y = 400; 
-
  },
  
  createSportsCarDown: function(){
@@ -220,7 +283,6 @@ var gameState = {
    car.checkWorldBounds = true;
    car.outOfBoundsKill = true;
    car.body.velocity.y = 400;
-
  },
 
  createPed: function(){
@@ -282,4 +344,4 @@ var gameState = {
 
  }
 
-}
+};
