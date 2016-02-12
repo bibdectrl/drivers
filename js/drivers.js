@@ -51,7 +51,7 @@ var gameState = {
   this.cyclist.alive = true;
   this.cyclist.holdingPackage = false;
   this.cyclist.score = 0;
-  this.cyclist.anchor.setTo(.9, 0.5);
+  this.cyclist.anchor.setTo(0, 0.5);
   this.peds = game.add.group();
   this.peds.enableBody = true;
   this.peds.createMultiple(15, "ped");
@@ -109,24 +109,26 @@ var gameState = {
 
   this.road.tilePosition.y += this.speed;  
   var touched = false;
-  if (this.cyclist.angle > 55 || this.cyclist.angle < -55) { this.instaDeath();  } 
+  if (this.cyclist.angle > 65 || this.cyclist.angle < -65) { this.instaDeath();  } 
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.UP)){
      this.cyclist.body.velocity.y = -400;
      this.speed = 6;
      if (this.cyclist.angle > 0){
-         this.cyclist.angle -= 1;
+         this.cyclist.angle -= 3;
      } else if (this.cyclist.angle < 0) {
-         this.cyclist.angle += 1;
+         this.cyclist.angle += 3;
      }
      touched = true;
   }
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
      this.cyclist.body.velocity.y = 400;
      this.speed = 2
+     this.cyclist.angle = 0;
      touched = true;
   } 
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
      this.cyclist.body.velocity.x = -300;
+     this.cyclist.body.velocity.y = -200;
      if (this.cyclist.angle > 0) {
        this.cyclist.angle = 0;
      }
@@ -135,6 +137,7 @@ var gameState = {
   } 
   if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
      this.cyclist.body.velocity.x = 300;
+     this.cyclist.body.velocity.y = -200;
      if (this.cyclist.angle < 0){
        this.cyclist.angle = 0;
      }
