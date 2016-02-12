@@ -120,13 +120,7 @@ var gameState = {
      }
      touched = true;
   }
-  if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
-     this.cyclist.body.velocity.y = 400;
-     this.speed = 2
-     this.cyclist.angle = 0;
-     touched = true;
-  } 
-  if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+ if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
      this.cyclist.body.velocity.x = -300;
      this.cyclist.body.velocity.y = -200;
      if (this.cyclist.angle > 0) {
@@ -142,6 +136,13 @@ var gameState = {
        this.cyclist.angle = 0;
      }
      this.cyclist.angle += 1;
+     touched = true;
+  } 
+  if (this.cyclist.alive && game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+     this.cyclist.body.velocity.y = 400;
+     this.cyclist.body.velocity.y = 50;
+     this.speed = 2
+     this.cyclist.angle = 0;
      touched = true;
   } 
   if (! touched && this.cyclist.alive) {
