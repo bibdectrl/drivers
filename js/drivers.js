@@ -50,6 +50,8 @@ var gameState = {
   this.cyclist = game.add.sprite(300, 300, "cyclist");
   this.cyclist.alive = true;
   this.cyclist.holdingPackage = false;
+  this.cyclist.packagePlacedAt = -1;
+  this.cyclist.retrievalAt = -1;
   this.cyclist.score = 0;
   this.cyclist.anchor.setTo(0, 0.5);
   this.peds = game.add.group();
@@ -85,6 +87,7 @@ var gameState = {
   this.arms.enableBody = true;
   this.arms.createMultiple(3, "arm");
   this.scoreText = game.add.text(410, 0, "SCORE: " + this.cyclist.score);
+  this.deliveryText = game.add.text(410, 40, "");
   this.timer = game.time.events.loop(1500, this.addObstacle, this);
  
  },
@@ -106,6 +109,22 @@ var gameState = {
   game.physics.arcade.overlap(this.cyclist, this.packages, this.takePackage, null, this);
   game.physics.arcade.overlap(this.cyclist, this.arms, this.givePackage, null, this);
 
+  this.deliveryText.setText("");
+
+  if (this.cyclist.packagePlacedAt > 0){
+    this.cyclist.packagePlacedAt -= this.speed;
+    this.deliveryText.setText("Delivery in: " + this.cyclist.packagePlacedAt/10 + "m");
+    if (this.cyclist.packagePlacedAt <= 0){
+      this.addPackageReceiver();
+    }
+  } else if (this.cyclist.retrievalAt > 0){
+    this.cyclist.retrievalAt -= this.speed;
+    this.deliveryText.setText("Package in: " + this.cyclist.retrievalAt/10 + "m");
+    if (this.cyclist.retrievalAt <= 0){
+      this.holdOutPackage();
+    }
+
+  }
 
   this.road.tilePosition.y += this.speed;  
   var touched = false;
@@ -169,7 +188,8 @@ var gameState = {
 
  takePackage: function(cyclist, pack){
    pack.kill();  
-   cyclist.holdingPackage = true; 
+   cyclist.holdingPackage = true;
+   cyclist.packagePlacedAt = game.rnd.between(4000, 5000); 
  },
 
  givePackage: function(cyclist, arm){
@@ -245,12 +265,10 @@ var gameState = {
  },
 
  handlePackage: function(){
-   if (! this.cyclist.holdingPackage){
+   if (! this.cyclist.holdingPackage && this.cyclist.retrievalAt < 0){
       if (! this.packages.countLiving()) {
-          this.holdOutPackage();
+          this.cyclist.retrievalAt = game.rnd.between(2000, 4000);
       }
-   } else {
-      this.addPackageReceiver();
    }
  },
 
