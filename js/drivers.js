@@ -86,8 +86,8 @@ var gameState = {
   this.arms = game.add.group();
   this.arms.enableBody = true;
   this.arms.createMultiple(3, "arm");
-  this.scoreText = game.add.text(410, 0, "SCORE: " + this.cyclist.score);
-  this.deliveryText = game.add.text(410, 40, "");
+  this.scoreText = game.add.text(400, 0, "SCORE: " + this.cyclist.score);
+  this.deliveryText = game.add.text(400, 40, "");
   this.timer = game.time.events.loop(1500, this.addObstacle, this);
  
  },
@@ -277,6 +277,7 @@ var gameState = {
   arm.reset(600, 0);
   arm.checkWorldBounds = true;
   arm.outOfBoundsKill = true;
+  arm.events.onOutOfBounds.add(function(a){ this.cyclist.score -= 100; this.scoreText.setText("Score: " + this.cyclist.score)}, this);
  },
 
  holdOutPackage: function(){
