@@ -277,7 +277,7 @@ var gameState = {
   arm.reset(600, 0);
   arm.checkWorldBounds = true;
   arm.outOfBoundsKill = true;
-  arm.events.onOutOfBounds.add(function(a){ this.cyclist.score -= 100; this.scoreText.setText("Score: " + this.cyclist.score)}, this);
+  arm.events.onOutOfBounds.add(function(a){ this.cyclist.score -= 100; this.cyclist.holdingPackage = false; this.scoreText.setText("Score: " + this.cyclist.score)}, this);
  },
 
  holdOutPackage: function(){
