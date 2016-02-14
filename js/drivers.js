@@ -53,7 +53,7 @@ var gameState = {
   this.cyclist.packagePlacedAt = -1;
   this.cyclist.retrievalAt = -1;
   this.cyclist.score = 0;
-  this.cyclist.anchor.setTo(0, 0.5);
+  this.cyclist.anchor.setTo(0.5, 0.5);
   this.peds = game.add.group();
   this.peds.enableBody = true;
   this.peds.createMultiple(15, "ped");
