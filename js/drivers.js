@@ -17,6 +17,7 @@ var preloadState = {
    game.load.image("suvdown", "assets/suvdown.png");
    game.load.image("package", "assets/package.png");
    game.load.image("arm", "assets/arm.png");
+   game.load.image("can", "assets/can.png");
   },
 
   create: function(){
@@ -57,6 +58,9 @@ var gameState = {
   this.peds = game.add.group();
   this.peds.enableBody = true;
   this.peds.createMultiple(15, "ped");
+  this.cans = game.add.group();
+  this.cans.enableBody = true;
+  this.cans.createMultiple(25, "can");
   this.speed = 4
   this.buses = game.add.group();
   this.busesDown = game.add.group();
@@ -97,6 +101,7 @@ var gameState = {
   game.physics.arcade.overlap(this.peds, this.buses, this.killPed, null, this);
   game.physics.arcade.overlap(this.cyclist, this.peds,  this.instaDeath, null, this);
   game.physics.arcade.overlap(this.cyclist, this.buses, this.instaDeath, null, this);
+  game.physics.arcade.overlap(this.cyclist, this.cans, this.instaDeath, null, this);
   game.physics.arcade.overlap(this.cyclist, this.busesDown, this.instaDeath, null, this);
   game.physics.arcade.overlap(this.cyclist, this.sportsCars, this.instaDeath, null, this);
   game.physics.arcade.overlap(this.peds, this.sportsCars, this.killPed, null, this);
@@ -183,7 +188,23 @@ var gameState = {
   this.arms.forEachAlive(function(a){
      a.y += this.speed;
   }, this);
+
+  this.cans.forEachAlive(function(c){
+     c.y += this.speed;
+  }, this);
  
+ },
+
+ spawnCan: function() {
+   var can = this.cans.getFirstDead();
+   if (game.rnd.between(0, 1) === 1){
+     can.reset(10, 0);
+   } else {
+     can.reset(580, 0);
+   }
+   can.checkWorldBounds = true;
+   can.outOfBoundsKill = true;
+
  },
 
  takePackage: function(cyclist, pack){
@@ -251,7 +272,7 @@ var gameState = {
 
 
  addObstacle: function(){
-   var option = game.rnd.between(0, 7);
+   var option = game.rnd.between(0, 8);
    switch(option){
      case 0: this.createPed(); break; 
      case 1: this.createBus(); break;
@@ -261,6 +282,7 @@ var gameState = {
      case 5: this.createSUV(); break;
      case 6: this.createSUVDown(); break;
      case 7: this.handlePackage(); break;
+     case 8: this.spawnCan(); break;
    }
  },
 
