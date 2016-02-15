@@ -90,8 +90,8 @@ var gameState = {
   this.arms = game.add.group();
   this.arms.enableBody = true;
   this.arms.createMultiple(3, "arm");
-  this.scoreText = game.add.text(400, 0, "SCORE: " + this.cyclist.score);
-  this.deliveryText = game.add.text(400, 40, "");
+  this.scoreText = game.add.text(380, 0, "SCORE: " + this.cyclist.score);
+  this.deliveryText = game.add.text(380, 40, "");
   this.timer = game.time.events.loop(1500, this.addObstacle, this);
  
  },
@@ -196,15 +196,16 @@ var gameState = {
  },
 
  spawnCan: function() {
-   var can = this.cans.getFirstDead();
-   if (game.rnd.between(0, 1) === 1){
-     can.reset(10, 0);
-   } else {
-     can.reset(580, 0);
+   if (this.cyclist.alive){
+     var can = this.cans.getFirstDead();
+     if (game.rnd.between(0, 1) === 1){
+       can.reset(10, -63);
+     } else {
+       can.reset(580, -63);
+     }
+     can.checkWorldBounds = true;
+     can.outOfBoundsKill = true;
    }
-   can.checkWorldBounds = true;
-   can.outOfBoundsKill = true;
-
  },
 
  takePackage: function(cyclist, pack){
@@ -321,7 +322,8 @@ var gameState = {
  
  createSportsCar: function(){
    var car = this.sportsCars.getFirstDead();
-   car.reset(400, 512);
+   var x = game.rnd.between(330, 450);
+   car.reset(x, 512);
    car.checkWorldBounds = true;
    car.outOfBoundsKill = true;
    car.body.velocity.y = -200;
@@ -329,7 +331,8 @@ var gameState = {
  
  createSUV: function(){
    var car = this.suvs.getFirstDead();
-   car.reset(400, 512);
+   var x = game.rnd.between(330, 450);
+   car.reset(x, 512);
    car.checkWorldBounds = true;
    car.outOfBoundsKill = true;
    car.body.velocity.y = -200;
@@ -337,7 +340,8 @@ var gameState = {
 
  createSUVDown: function(){
    var car = this.suvsDown.getFirstDead();
-   car.reset(100, -205);
+   var x = game.rnd.between(80, 200);
+   car.reset(x, -205);
    car.checkWorldBounds = true;
    car.outOfBoundsKill = true;
    car.body.velocity.y = 400; 
@@ -345,7 +349,8 @@ var gameState = {
  
  createSportsCarDown: function(){
    var car = this.sportsCarsDown.getFirstDead();
-   car.reset(100, -198);
+   var x = game.rnd.between(80, 200);
+   car.reset(x, -198);
    car.checkWorldBounds = true;
    car.outOfBoundsKill = true;
    car.body.velocity.y = 400;
@@ -395,7 +400,8 @@ var gameState = {
 
  createBus: function(){
   var bus = this.buses.getFirstDead();
-  bus.reset(400, 512);
+  var x = game.rnd.between(330, 450);
+  bus.reset(x, 512);
   bus.body.velocity.y = -200;
   bus.checkWorldBounds = true;
   bus.outOfBoundsKill = true;
@@ -403,7 +409,8 @@ var gameState = {
 
  createBusDown: function(){
   var bus = this.busesDown.getFirstDead();
-  bus.reset(100, -255);
+  var x = game.rnd.between(80, 200);
+  bus.reset(x, -255);
   bus.body.velocity.y = 400;
   bus.checkWorldBounds = true;
   bus.outOfBoundsKill = true;
