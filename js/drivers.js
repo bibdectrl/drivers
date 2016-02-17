@@ -220,10 +220,6 @@ var gameState = {
      cyclist.score += 100;
      arm.kill();
      this.scoreText.setText("SCORE: " + cyclist.score);
-   } else {
-     cyclist.score -= 100;  
-     arm.kill();
-     this.scoreText.setText("SCORE: " + cyclist.score);
    }
 
  },
